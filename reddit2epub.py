@@ -17,10 +17,10 @@ reddit = praw.Reddit(client_id="sUBJ9ERh2RyjmQ", client_secret=None,
 @click.command()
 @click.option('input_url', '--input', '-i', required=True,
               help='The url of an arbitrary chapter of the series you want to convert')
-@click.option('--overlap', default=10, help='How many common characters do the titles have at the beginning.')
 @click.option('output_filename', '--output', '-o', default="",
               help='The filename of the output epub. Defaults to the first chapter title.')
-def run(input_url: str, overlap, output_filename):
+@click.option('--overlap', default=10, help='How many common characters do the titles have at the beginning.')
+def main(input_url: str, overlap, output_filename):
     initial_submission = reddit.submission(url=input_url)
     title = initial_submission.title
     author = initial_submission.author
@@ -114,4 +114,4 @@ def run(input_url: str, overlap, output_filename):
 
 if __name__ == '__main__':
     # todo setup.py
-    run()
+    main()
