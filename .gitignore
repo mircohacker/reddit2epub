@@ -1,2 +1,5 @@
 *.epub
 *.ini
+build
+dist
+*.egg-info
