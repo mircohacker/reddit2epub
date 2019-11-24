@@ -1,6 +1,7 @@
 import re
 import sys
 
+import click
 import praw
 from ebooklib import epub
 
@@ -13,7 +14,13 @@ reddit = praw.Reddit(client_id="sUBJ9ERh2RyjmQ", client_secret=None,
                      user_agent='Reddit storries to epub by mircohaug')
 
 
-def run(input_url: str, title_overlap_prefix=10):
+@click.command()
+@click.option('input_url', '--input', '-i', required=True,
+              help='The url of an arbitrary chapter of the series you want to convert')
+@click.option('--overlap', default=10, help='How many common characters do the titles have at the beginning.')
+@click.option('output_filename', '--output', '-o', default="",
+              help='The filename of the output epub. Defaults to the first chapter title.')
+def run(input_url: str, overlap, output_filename):
     initial_submission = reddit.submission(url=input_url)
     title = initial_submission.title
     author = initial_submission.author
@@ -26,7 +33,7 @@ def run(input_url: str, title_overlap_prefix=10):
     for p in list_of_posts:
         len_selected_submissions += 1
         # starting with the same first 10 letters
-        if p.subreddit == subreddit and p.title.startswith(title[:title_overlap_prefix]):
+        if p.subreddit == subreddit and p.title.startswith(title[:overlap]):
             if p.is_self:
                 selected_submissions.append(p)
             else:
@@ -45,7 +52,7 @@ def run(input_url: str, title_overlap_prefix=10):
     print("Number of applicaple posts {}".format(len_subs))
     if len_subs == 1:
         raise Exception("No other chapters found, which share the first {} characters with other posts from this "
-                        "author in this subreddit.".format(title_overlap_prefix))
+                        "author in this subreddit.".format(overlap))
     elif len_subs == 0:
         raise Exception("No text chapters found")
 
@@ -61,7 +68,10 @@ def run(input_url: str, title_overlap_prefix=10):
     book.set_title(selected_submissions[-1].title)
     book.set_language('en')
     # replace all non alphanumeric chars through _ for filename sanitation
-    file_name = (re.sub('[^0-9a-zA-Z]+', '_', selected_submissions[-1].title) + ".epub").strip("_OC")
+    if output_filename:
+        file_name = output_filename
+    else:
+        file_name = (re.sub('[^0-9a-zA-Z]+', '_', selected_submissions[-1].title) + ".epub").strip("_OC")
 
     book.add_author(author.name)
 
@@ -103,7 +113,5 @@ def run(input_url: str, title_overlap_prefix=10):
 
 
 if __name__ == '__main__':
-    # todo add cli input/output/number of overlapping
     # todo setup.py
-    input = "https://www.reddit.com/r/HFY/comments/252w4n/ocevery_road_leads_to_space_contact/"
-    run(input)
+    run()
