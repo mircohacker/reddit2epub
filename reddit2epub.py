@@ -19,14 +19,18 @@ reddit = praw.Reddit(client_id="sUBJ9ERh2RyjmQ", client_secret=None,
               help='The url of an arbitrary chapter of the series you want to convert')
 @click.option('output_filename', '--output', '-o', default="",
               help='The filename of the output epub. Defaults to the first chapter title.')
-@click.option('--overlap', default=10, help='How many common characters do the titles have at the beginning.')
+@click.option('--overlap', default=2, help='How many common words do the titles have at the beginning.')
 def main(input_url: str, overlap, output_filename):
     initial_submission = reddit.submission(url=input_url)
     title = initial_submission.title
     author = initial_submission.author
     subreddit = initial_submission.subreddit
 
-    list_of_posts = subreddit.search("author:{}".format(author), sort='new', limit=None)
+    search_title = " ".join(title.split(" ")[:overlap])
+
+    # is limited to 250 items
+    list_of_posts = subreddit.search("author:\"{}\" title:\"{}\"".format(author, search_title), sort='new', limit=None)
+    list_of_posts = list(list_of_posts)
 
     len_selected_submissions = 0
     selected_submissions = []
@@ -46,18 +50,19 @@ def main(input_url: str, overlap, output_filename):
                     else:
                         selected_submissions.append(original_post)
 
-    print("Total number of author posts in subreddit: {0}".format(len_selected_submissions))
+    print("Total number of found posts with title prefix '{}' in subreddit: {}".format(search_title,
+                                                                                       len_selected_submissions))
 
     len_subs = len(selected_submissions)
     print("Number of applicaple posts {}".format(len_subs))
     if len_subs == 1:
-        raise Exception("No other chapters found, which share the first {} characters with other posts from this "
+        raise Exception("No other chapters found, which share the first {} words with other posts from this "
                         "author in this subreddit.".format(overlap))
     elif len_subs == 0:
         raise Exception("No text chapters found")
 
-    if len_selected_submissions >= 900:
-        print("Got more than 900 submissions from author in this subreddit :-O. "
+    if len_selected_submissions >= 200:
+        print("Got more than 200 submissions from author in this subreddit :-O. "
               "It may be possible that old chapters are not included.",
               file=sys.stderr)
 
@@ -113,5 +118,4 @@ def main(input_url: str, overlap, output_filename):
 
 
 if __name__ == '__main__':
-    # todo setup.py
     main()
