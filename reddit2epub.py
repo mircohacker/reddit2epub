@@ -95,7 +95,8 @@ def main(input_url: str, overlap, output_filename, all_reddit):
     for i, sub in enumerate(reversed(selected_submissions)):
         # create chapter
         c1 = epub.EpubHtml(title=sub.title, file_name='chap_{}.xhtml'.format(i), lang='en')
-        c1.content = "<h1>{}</h1>".format(sub.title) + sub.selftext_html
+        c1.content = "<h1>{}</h1>\n <a href=\"{}\">Original</a>\n".format(sub.title,
+                                                                          sub.shortlink) + sub.selftext_html
 
         # add chapter
         book.add_item(c1)
