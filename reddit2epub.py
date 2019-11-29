@@ -5,11 +5,6 @@ import click
 import praw
 from ebooklib import epub
 
-
-class NotFoundError(Exception):
-    pass
-
-
 reddit = praw.Reddit(client_id="sUBJ9ERh2RyjmQ", client_secret=None,
                      user_agent='Reddit storries to epub by mircohaug')
 
@@ -96,7 +91,6 @@ def main(input_url: str, overlap, output_filename, all_reddit):
     else:
         file_name = (re.sub('[^0-9a-zA-Z]+', '_', selected_submissions[-1].title) + ".epub").strip("_OC")
 
-
     chapters = []
 
     print("Chapters:")
@@ -131,8 +125,6 @@ def main(input_url: str, overlap, output_filename, all_reddit):
 
     # write to the file
     epub.write_epub(file_name, book, {})
-
-    pass
 
 
 if __name__ == '__main__':
