@@ -73,19 +73,29 @@ def main(input_url: str, overlap, output_filename, all_reddit):
               "It may be possible that old chapters are not included.",
               file=sys.stderr)
 
+    # Build the ebook
+
     book = epub.EpubBook()
 
     # set metadata
     book.set_identifier(selected_submissions[-1].id)
     book.set_title(selected_submissions[-1].title)
+    book.add_author(author.name)
     book.set_language('en')
+
+    cover = epub.EpubHtml(title=book.title, file_name='cover.xhtml', lang='en')
+    cover.content = "<div><h1>{}</h1>" \
+                    "<h2><a href=\"https://www.reddit.com/user/{}\">{}</a></h2>" \
+                    "{}</div>".format(book.title, author.name, author.name,
+                                      "Created with the reddit2epub python package")
+    book.add_item(cover)
+
     # replace all non alphanumeric chars through _ for filename sanitation
     if output_filename:
         file_name = output_filename
     else:
         file_name = (re.sub('[^0-9a-zA-Z]+', '_', selected_submissions[-1].title) + ".epub").strip("_OC")
 
-    book.add_author(author.name)
 
     chapters = []
 
@@ -114,7 +124,7 @@ def main(input_url: str, overlap, output_filename, all_reddit):
     book.add_item(epub.EpubNav())
 
     # basic spine
-    spine = ['nav']
+    spine = [cover, 'nav']
     spine.extend(chapters)
     # is used to generate the toc at the start
     book.spine = spine
