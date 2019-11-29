@@ -20,24 +20,31 @@ reddit = praw.Reddit(client_id="sUBJ9ERh2RyjmQ", client_secret=None,
 @click.option('output_filename', '--output', '-o', default="",
               help='The filename of the output epub. Defaults to the first chapter title.')
 @click.option('--overlap', default=2, help='How many common words do the titles have at the beginning.')
-def main(input_url: str, overlap, output_filename):
+@click.option('--all-reddit/--no-all-reddit', default=False, help='Search over all reddit. '
+                                                                  'Meant for stories which span subreddits')
+def main(input_url: str, overlap, output_filename, all_reddit):
     initial_submission = reddit.submission(url=input_url)
     title = initial_submission.title
     author = initial_submission.author
-    subreddit = initial_submission.subreddit
+    post_subreddit = initial_submission.subreddit
 
     search_title = " ".join(title.split(" ")[:overlap])
 
+    if all_reddit:
+        sub_to_search_in = reddit.subreddit('all')
+    else:
+        sub_to_search_in = post_subreddit
+
     # is limited to 250 items
-    list_of_posts = subreddit.search("author:\"{}\" title:\"{}\"".format(author, search_title), sort='new', limit=None)
+    list_of_posts = sub_to_search_in.search("author:\"{}\" title:\"{}\"".format(author, search_title), sort='new')
     list_of_posts = list(list_of_posts)
 
     len_selected_submissions = 0
     selected_submissions = []
     for p in list_of_posts:
         len_selected_submissions += 1
-        # starting with the same first 10 letters
-        if p.subreddit == subreddit and p.title.startswith(title[:overlap]):
+        # starting with the same words
+        if p.title.startswith(search_title):
             if p.is_self:
                 selected_submissions.append(p)
             else:
