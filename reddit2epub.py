@@ -20,24 +20,31 @@ reddit = praw.Reddit(client_id="sUBJ9ERh2RyjmQ", client_secret=None,
 @click.option('output_filename', '--output', '-o', default="",
               help='The filename of the output epub. Defaults to the first chapter title.')
 @click.option('--overlap', default=2, help='How many common words do the titles have at the beginning.')
-def main(input_url: str, overlap, output_filename):
+@click.option('--all-reddit/--no-all-reddit', default=False, help='Search over all reddit. '
+                                                                  'Meant for stories which span subreddits')
+def main(input_url: str, overlap, output_filename, all_reddit):
     initial_submission = reddit.submission(url=input_url)
     title = initial_submission.title
     author = initial_submission.author
-    subreddit = initial_submission.subreddit
+    post_subreddit = initial_submission.subreddit
 
     search_title = " ".join(title.split(" ")[:overlap])
 
+    if all_reddit:
+        sub_to_search_in = reddit.subreddit('all')
+    else:
+        sub_to_search_in = post_subreddit
+
     # is limited to 250 items
-    list_of_posts = subreddit.search("author:\"{}\" title:\"{}\"".format(author, search_title), sort='new', limit=None)
+    list_of_posts = sub_to_search_in.search("author:\"{}\" title:\"{}\"".format(author, search_title), sort='new')
     list_of_posts = list(list_of_posts)
 
     len_selected_submissions = 0
     selected_submissions = []
     for p in list_of_posts:
         len_selected_submissions += 1
-        # starting with the same first 10 letters
-        if p.subreddit == subreddit and p.title.startswith(title[:overlap]):
+        # starting with the same words
+        if p.title.startswith(search_title):
             if p.is_self:
                 selected_submissions.append(p)
             else:
@@ -66,19 +73,29 @@ def main(input_url: str, overlap, output_filename):
               "It may be possible that old chapters are not included.",
               file=sys.stderr)
 
+    # Build the ebook
+
     book = epub.EpubBook()
 
     # set metadata
     book.set_identifier(selected_submissions[-1].id)
     book.set_title(selected_submissions[-1].title)
+    book.add_author(author.name)
     book.set_language('en')
+
+    cover = epub.EpubHtml(title=book.title, file_name='cover.xhtml', lang='en')
+    cover.content = "<div><h1>{}</h1>" \
+                    "<h2><a href=\"https://www.reddit.com/user/{}\">{}</a></h2>" \
+                    "{}</div>".format(book.title, author.name, author.name,
+                                      "Created with the reddit2epub python package")
+    book.add_item(cover)
+
     # replace all non alphanumeric chars through _ for filename sanitation
     if output_filename:
         file_name = output_filename
     else:
         file_name = (re.sub('[^0-9a-zA-Z]+', '_', selected_submissions[-1].title) + ".epub").strip("_OC")
 
-    book.add_author(author.name)
 
     chapters = []
 
@@ -88,7 +105,8 @@ def main(input_url: str, overlap, output_filename):
     for i, sub in enumerate(reversed(selected_submissions)):
         # create chapter
         c1 = epub.EpubHtml(title=sub.title, file_name='chap_{}.xhtml'.format(i), lang='en')
-        c1.content = "<h1>{}</h1>".format(sub.title) + sub.selftext_html
+        c1.content = "<h1>{}</h1>\n <a href=\"{}\">Original</a>\n".format(sub.title,
+                                                                          sub.shortlink) + sub.selftext_html
 
         # add chapter
         book.add_item(c1)
@@ -106,7 +124,7 @@ def main(input_url: str, overlap, output_filename):
     book.add_item(epub.EpubNav())
 
     # basic spine
-    spine = ['nav']
+    spine = [cover, 'nav']
     spine.extend(chapters)
     # is used to generate the toc at the start
     book.spine = spine
