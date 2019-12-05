@@ -1,13 +1,24 @@
+import json
 import re
 import sys
 
 import click
+import pkg_resources
 import praw
 from ebooklib import epub
 
 reddit = praw.Reddit(client_id="sUBJ9ERh2RyjmQ", client_secret=None,
                      user_agent='Reddit storries to epub by mircohaug')
 
+
+def print_version(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    infos = {
+        "version": pkg_resources.get_distribution("reddit2epub").version
+    }
+    click.echo(json.dumps(infos))
+    ctx.exit()
 
 @click.command()
 @click.option('input_url', '--input', '-i', required=True,
@@ -17,6 +28,8 @@ reddit = praw.Reddit(client_id="sUBJ9ERh2RyjmQ", client_secret=None,
 @click.option('--overlap', default=2, help='How many common words do the titles have at the beginning.')
 @click.option('--all-reddit/--no-all-reddit', default=False, help='Search over all reddit. '
                                                                   'Meant for stories which span subreddits')
+@click.option('--version', help="Print version information and exit.", is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True)
 def main(input_url: str, overlap, output_filename, all_reddit):
     initial_submission = reddit.submission(url=input_url)
     title = initial_submission.title
