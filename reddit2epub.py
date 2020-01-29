@@ -44,7 +44,8 @@ def main(input_url: str, overlap, output_filename, all_reddit):
         sub_to_search_in = post_subreddit
 
     # is limited to 250 items
-    list_of_posts = sub_to_search_in.search("author:\"{}\" title:\"{}\"".format(author, search_title), sort='new')
+    list_of_posts = sub_to_search_in.search("author:\"{}\" title:\"{}\" ".format(author, search_title), limit=None,
+                                            sort='new')
     list_of_posts = list(list_of_posts)
 
     len_selected_submissions = 0
