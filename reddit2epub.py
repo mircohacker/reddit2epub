@@ -8,7 +8,7 @@ import praw
 from ebooklib import epub
 
 reddit = praw.Reddit(client_id="sUBJ9ERh2RyjmQ", client_secret=None,
-                     user_agent='Reddit storries to epub by mircohaug')
+                     user_agent='Reddit stories to epub by mircohaug')
 
 
 def print_version(ctx, param, value):
