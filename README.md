@@ -1,6 +1,6 @@
 # Reddit to epub converter
 
-This little script allows you to convert reddit storries which are published in multiple posts to one single epub file.
+This little script allows you to convert reddit stories which are published in multiple posts to one single epub file.
 
 ## Usage
 
