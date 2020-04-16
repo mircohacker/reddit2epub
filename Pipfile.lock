@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5de49de2e26a722b7c0d491dca107e08182eb924c9053d6d13d3c0f85937d173"
+            "sha256": "cdb67e9236a3e88fc159da8bbc944659c6362be37001927458742d363595bd6b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -50,10 +50,6 @@
             ],
             "version": "==2.9"
         },
-        "idoit-cli-py": {
-            "editable": true,
-            "path": "."
-        },
         "lxml": {
             "hashes": [
                 "sha256:06d4e0bbb1d62e38ae6118406d7cdb4693a3fa34ee3762238bcb96c9e36a93cd",
@@ -99,6 +95,10 @@
                 "sha256:ab5558efb438aa73fc66c4178bfc809194dea3ce2addf4dec873de7e2fd2824e"
             ],
             "version": "==1.0.1"
+        },
+        "reddit2epub": {
+            "editable": true,
+            "path": "."
         },
         "requests": {
             "hashes": [
