@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='reddit2epub',
-    version='0.4.2',
+    version='0.5.0',
     description='A CLI to convert reddit series into epub files',
     long_description=long_description,
     long_description_content_type="text/markdown",
