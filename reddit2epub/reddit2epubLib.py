@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable
 
 import praw
 from ebooklib import epub
@@ -28,7 +28,7 @@ def create_book_from_chapters(
         book_author: str,
         book_id: str,
         book_title: str,
-        reddit_chapters: List[Submission]) -> EpubBook:
+        reddit_chapters: Iterable[Submission]) -> EpubBook:
     book = epub.EpubBook()
     book.set_identifier(book_id)
     book.set_title(book_title)
@@ -41,9 +41,8 @@ def create_book_from_chapters(
                                        "Created with the reddit2epub python package")
     book.add_item(cover)
     book_chapters = []
-    print("Chapters:")
     # check for title prefix
-    for i, sub in enumerate(reversed(reddit_chapters)):
+    for i, sub in enumerate(reddit_chapters):
         # create chapter
         c1 = epub.EpubHtml(title=sub.title, file_name='chap_{}.xhtml'.format(i), lang='en')
         c1.content = """<h1>{0}</h1>
@@ -56,7 +55,6 @@ def create_book_from_chapters(
         book.add_item(c1)
         book_chapters.append(c1)
 
-        print(sub.title)
     # define Table Of Contents
     book.toc = (
         book_chapters

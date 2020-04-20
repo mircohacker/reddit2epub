@@ -55,7 +55,7 @@ def main_cli(input_url: str, overlap: int, output_filename, all_reddit):
     book_author = author.name
 
     # Build the ebook
-    book = create_book_from_chapters(book_author, book_id, book_title, selected_submissions)
+    book = create_book_from_chapters(book_author, book_id, book_title, reversed(selected_submissions))
 
     # replace all non alphanumeric chars through _ for filename sanitation
     if output_filename:
