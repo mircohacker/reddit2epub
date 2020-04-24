@@ -32,12 +32,9 @@ def print_version(ctx, param, value):
 def main_cli(input_url: str, overlap: int, output_filename, all_reddit):
     author, selected_submissions, search_title = get_chapters_from_anchor(input_url, overlap, all_reddit)
 
-    len_selected_submissions = len(selected_submissions)
-    print("Total number of found posts with title prefix '{}' in subreddit: {}".format(search_title,
-                                                                                       len_selected_submissions))
-
     len_subs = len(selected_submissions)
-    print("Number of applicaple posts {}".format(len_subs))
+    print("Total number of found posts with title prefix '{}' in subreddit: {}".format(search_title, len_subs))
+
     if len_subs == 1:
         raise Exception("No other chapters found, which share the first {} words with other posts from this "
                         "author in this subreddit.".format(overlap))
