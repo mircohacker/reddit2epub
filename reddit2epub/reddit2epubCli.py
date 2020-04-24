@@ -41,7 +41,7 @@ def main_cli(input_url: str, overlap: int, output_filename, all_reddit):
     elif len_subs == 0:
         raise Exception("No text chapters found")
 
-    if len_selected_submissions >= 200:
+    elif len_subs >= 200:
         print("Got more than 200 submissions from author in this subreddit :-O. "
               "It may be possible that old chapters are not included.",
               file=sys.stderr)
